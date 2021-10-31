@@ -201,7 +201,7 @@ TimeData_t::TimeData_t(GeoLocation_t _geoloc) {
   //tm.tm_isdst = 0;
   
   year   = localtime->tm_year + 1900;
-  month  = localtime->tm_mon - 1;
+  month  = localtime->tm_mon + 1;
   day    = localtime->tm_mday;
   hour   = localtime->tm_hour - _geoloc.timezone; // [will bug on edge cases]
   minute = localtime->tm_min;
@@ -515,6 +515,62 @@ void AstroChart_t::display(bool bOutputHTML) const
   if (bOutputHTML) {
     fprintf( fd, "</pre>");
     fclose(fd);
+  }
+}
+
+
+void AstroChart_t::displayTransit(AstroChart_t const& chart/*bool bOutputHTML*/) const {
+  constexpr int kTransitAspectMaxDegreeDiff{ 3 };
+  AspectMatrix_t transitAspects;
+
+  for (const auto& src : planets) {
+    for (auto dst_id = src.id+0; dst_id < kNumCelestialPoints; ++dst_id) {
+      int diff = abs(src.angle.degree - chart.planets[dst_id].angle.degree);
+          diff = (180 < diff) ? 360-diff : diff;
+
+      for (int i = 0; i < kNumAspectTypes; ++i) {
+        const AspectType_t atype = AspectType_t(i);
+        const int orb = diff - AspectDegree(atype);
+        if (abs(orb) <= kTransitAspectMaxDegreeDiff) {
+          transitAspects[src.id][dst_id] = transitAspects[dst_id][src.id] = { atype, orb };
+          break;
+        }
+      }
+    }
+  }
+
+  fprintf( stderr, "\n\n\n[ wip ] Current Transit.\n" );
+  fprintf( stderr, " %4d-%02d-%02d\n", timeData.year, timeData.month, timeData.day);
+  fprintf( stderr, " %02d:%02d UT\n", timeData.hour, timeData.minute);
+  fprintf( stderr, " %.2f E - %.2f N (GMT %+d)\n", timeData.geoloc.longitude, timeData.geoloc.latitude, timeData.geoloc.timezone);
+  fprintf( stderr, "\n\n" );
+
+  // Planets aspects.
+  for (const auto& src : planets) {
+    for (auto dst_id = size_t(src.id+0); dst_id < transitAspects.size(); ++dst_id) {
+      const auto& A = transitAspects[src.id][dst_id];
+      if (A.type != AspectType_t::None)
+      {
+        char aspect_video_url[128]{0};
+        // if ((src.id >= CelestialPoint_t::Sun) && (src.id <= CelestialPoint_t::Mars)
+        //  && (dst_id > CelestialPoint_t::Sun) && (dst_id <= CelestialPoint_t::Pluto))
+        // {
+        //   const int url_id = (dst_id - 1 - src.id) + src.id * (kNumRulerPlanets-1) + (src.id * (1 - src.id)) / 2;
+        //   const auto videoId{ kAspectVideoId[url_id] };
+        //   sprintf(aspect_video_url, kVideoFormat, videoId.c_str(), "aspect");
+        // }
+
+        const auto &dst{ chart.planets[dst_id] };
+
+        fprintf( stderr, "%8s\t%10s\t%10s\t %+d°\t|\t(%s) %s %s %s (%s)\t\t%6s\n", 
+          src.pname, AspectName(A.type), dst.pname, A.orb,
+          ZodiacSymbol(src.angle.zodiac()), PlanetSymbol(src.id),
+          AspectSymbol(A.type),
+          PlanetSymbol(dst.id), ZodiacSymbol(dst.angle.zodiac()),
+          aspect_video_url
+        );
+      }
+    }
   }
 }
 

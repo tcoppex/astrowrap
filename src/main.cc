@@ -17,16 +17,8 @@
 int main(int argc, char *argv[])
 {
   // Native.
-  astrowrap::TimeData_t native;
-  {
-    int constexpr utc = +1;
-    native.year   = 1988;
-    native.month  = 1;
-    native.day    = 28;
-    native.hour   = 12 - utc;
-    native.minute = 20;
-    native.geoloc = astrowrap::GeoLocation_t(2.31, 48.49, utc);
-  }
+  auto const nativeLocation = astrowrap::GeoLocation_t(2.31, 48.49, +1);
+  astrowrap::TimeData_t native(1988, 1, 28, 12 - nativeLocation.timezone, 20, nativeLocation); //
   astrowrap::AstroChart_t nativeChart(native);
 
   // Transit.
