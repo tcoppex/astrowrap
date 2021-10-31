@@ -154,6 +154,20 @@ struct GeoLocation_t {
 };
 
 struct TimeData_t {
+  TimeData_t() = default;
+  
+  TimeData_t(int _year, int _month, int _day, int _hour, int _minute, GeoLocation_t _geoloc)
+    : year(_year)
+    , month(_month)
+    , day(_day)
+    , hour(_hour)
+    , minute(_minute)
+    , geoloc(_geoloc)
+  {}
+
+  explicit 
+  TimeData_t(GeoLocation_t _geoloc);
+
   int year;
   int month;
   int day;
@@ -190,9 +204,12 @@ struct AstroChart_t {
     int water = 0;
   } elements;
 
+  explicit 
   AstroChart_t(TimeData_t timeData);
   
-  void display(bool bOutputHTML);
+  void display(bool bOutputHTML) const;
+
+  void displayTransit(AstroChart_t const& chart) const {}
 };
 
 /* -------------------------------------------------------------------------- */

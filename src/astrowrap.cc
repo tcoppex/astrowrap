@@ -1,5 +1,6 @@
 #include "astrowrap.h"
 
+#include <ctime>
 #include "swe/swephexp.h"
 #include "swe/swephlib.h"
 
@@ -85,7 +86,6 @@ const std::array<ZodiacData_t, kNumZodiacs> kZodiacDatas{
 char const* ZodiacSymbol(Zodiac_t z)     { return kZodiacDatas[z].symbol; }
 char const* ZodiacName(Zodiac_t z)       { return kZodiacDatas[z].name;   }
 CelestialPoint_t ZodiacRuler(Zodiac_t z) { return kZodiacDatas[z].ruler;  }
-
 
 /* -------------------------------------------------------------------------- */
 
@@ -192,6 +192,21 @@ const std::array<std::string, 50> kAspectVideoId{
 // ascendant
 //"lfvfbPsMG98", "c4Ghny3VcoE", "ujq1yhqrVsM", "lO-OPF_xZKE"
 };
+
+/* -------------------------------------------------------------------------- */
+
+TimeData_t::TimeData_t(GeoLocation_t _geoloc) {
+  std::time_t t = std::time(0);
+  std::tm* localtime = std::localtime(&t);
+  //tm.tm_isdst = 0;
+  
+  year   = localtime->tm_year + 1900;
+  month  = localtime->tm_mon - 1;
+  day    = localtime->tm_mday;
+  hour   = localtime->tm_hour - _geoloc.timezone; // [will bug on edge cases]
+  minute = localtime->tm_min;
+  geoloc = _geoloc;
+}
 
 /* -------------------------------------------------------------------------- */
 
@@ -350,7 +365,7 @@ AstroChart_t::AstroChart_t(TimeData_t _timeData)
   }
 }
 
-void AstroChart_t::display(bool bOutputHTML)
+void AstroChart_t::display(bool bOutputHTML) const
 {
   FILE *fd = stderr;
 

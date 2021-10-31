@@ -9,25 +9,33 @@
 //     * check consistency with weird locations and other charts.
 //
 
-#include <cstdio>
 #include <cstdlib>
-
 #include "astrowrap.h"
 
 /* -------------------------------------------------------------------------- */
 
 int main(int argc, char *argv[])
 {
-  astrowrap::TimeData_t data;
-  data.year   = 2021;
-  data.month  = 3;
-  data.day    = 28;
-  data.hour   = 11;     // here compensating (UTC + 9)
-  data.minute = 20;
-  data.geoloc = astrowrap::GeoLocation_t(129.06, 35.17, +9);
+  // Native.
+  astrowrap::TimeData_t native;
+  {
+    int constexpr utc = +1;
+    native.year   = 1988;
+    native.month  = 1;
+    native.day    = 28;
+    native.hour   = 12 - utc;
+    native.minute = 20;
+    native.geoloc = astrowrap::GeoLocation_t(2.31, 48.49, utc);
+  }
+  astrowrap::AstroChart_t nativeChart(native);
 
-  astrowrap::AstroChart_t astrochart(data);
-  astrochart.display(false);
+  // Transit.
+  astrowrap::TimeData_t hereAndNow(astrowrap::GeoLocation_t(2.45, 48.52, +1));
+  astrowrap::AstroChart_t currentChart(hereAndNow);
+
+  // Charts.
+  nativeChart.display(false);
+  currentChart.displayTransit(nativeChart);
 
   return EXIT_SUCCESS;
 }
