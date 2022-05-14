@@ -389,13 +389,13 @@ void AstroChart_t::display(bool bOutputHTML, bool bCondenseDisplay) const
 
   // Binary / Ternary / Quaternary scores.
   const float percent{ 100.0f / static_cast<float>(kNumRulerPlanets) };
-  fprintf( fd, "Polarity\t♀ %3.2f%%\t|\t♂ %3.2f%%\n",
+  fprintf( fd, "Polarity \t♀ %3.2f%% \t| \t♂ %3.2f%%\n",
     polarity.nyin*percent, polarity.nyang*percent
   );
-  fprintf( fd, "Quality \tC %3.2f%%\t|\tF %3.2f%% \t|\tM %3.2f%%\n",
+  fprintf( fd, "Quality \tC %3.2f%% \t| \tF %3.2f%% \t| \tM %3.2f%%\n",
     quality.ncardinal*percent, quality.nfixed*percent, quality.nmutable*percent
   );
-  fprintf( fd, "Elements\tᐃ %3.2f%%\t|\tᗄ %3.2f%% \t|\tᗋ %3.2f%%\t|\tᐁ %3.2f%%\n",
+  fprintf( fd, "Elements \tᐃ %3.2f%% \t| \tᗄ %3.2f%% \t| \tᗋ %3.2f%% \t| \tᐁ %3.2f%%\n",
     elements.fire*percent, elements.earth*percent, elements.air*percent, elements.water*percent
   );
 
@@ -436,7 +436,7 @@ void AstroChart_t::display(bool bOutputHTML, bool bCondenseDisplay) const
     if (bCondenseDisplay) {
       fprintf( fd, "%s\n", condensedInfo);
     } else {
-      fprintf( fd, "%9s %s\t%12s\t%s\t%3d°\t%3d° %2d'%2.0f\t%16s\t[ %s ]\t%6s\t%6s\n",
+      fprintf( fd, "%9s %s \t%12s \t%s \t%3d° \t%3d° %2d'%2.0f \t%16s \t[ %s ] \t%6s \t%6s\n",
         p.pname, planetSymbol, p.pname_sign, 
         ZodiacSymbol(p.angle.zodiac()),
         p.angle.degree % 30, p.angle.degree, p.angle.minute, p.angle.second,
@@ -499,7 +499,7 @@ void AstroChart_t::display(bool bOutputHTML, bool bCondenseDisplay) const
         condensed_ruler_str
       );
     } else {
-      fprintf( fd, "%8s\t%12s\t%s\t%3d°\t%3d° %2d'%2.0f\t%16s\t%s\n",
+      fprintf( fd, "%8s \t%12s \t%s\t%3d° \t%3d° %2d'%2.0f \t%16s \t%s\n",
         p.pname, p.pname_sign,
         ZodiacSymbol(p.angle.zodiac()),
         p.angle.degree % 30, p.angle.degree, p.angle.minute, p.angle.second,
@@ -538,7 +538,7 @@ void AstroChart_t::display(bool bOutputHTML, bool bCondenseDisplay) const
         if (bCondenseDisplay) {
           fprintf( fd, "%s %+d°\n", condensedInfo, A.orb);
         } else {
-          fprintf( fd, "%8s\t%10s\t%10s\t %+d°\t|\t%s\t\t%6s\n", 
+          fprintf( fd, "%8s \t%10s \t%10s\t %+d° \t| \t%s \t%6s\n", 
             src.pname, AspectName(A.type), dst.pname, A.orb,
             condensedInfo,
             aspect_video_url
@@ -598,7 +598,7 @@ void AstroChart_t::displayTransit(AstroChart_t const& chart/*bool bOutputHTML*/)
 
         const auto &dst{ chart.planets[dst_id] };
 
-        fprintf(stderr, "%8s\t%10s\t%10s\t %+d°\t|\t(%s) %s %s %s (%s)\t\t%6s\n", 
+        fprintf(stderr, "%8s \t%10s \t%10s \t%+d° \t| \t(%s) %s %s %s (%s) \t%6s\n", 
           src.pname, AspectName(A.type), dst.pname, A.orb,
           ZodiacSymbol(src.angle.zodiac()), PlanetSymbol(src.id),
           AspectSymbol(A.type),
