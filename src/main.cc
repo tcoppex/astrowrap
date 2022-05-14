@@ -26,7 +26,13 @@ int main(int argc, char *argv[])
   astrowrap::AstroChart_t currentChart(hereAndNow);
 
   // Charts.
-  nativeChart.display(false);
+  const bool bOutputHTML = false;
+  nativeChart.display(bOutputHTML, false);
+
+  // Transits.
+  if (!bOutputHTML) {
+    fprintf(stderr, "\n\n");
+  }
   currentChart.displayTransit(nativeChart);
 
   return EXIT_SUCCESS;

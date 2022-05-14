@@ -207,7 +207,7 @@ struct AstroChart_t {
   explicit 
   AstroChart_t(TimeData_t timeData);
   
-  void display(bool bOutputHTML) const;
+  void display(bool bOutputHTML, bool bCondenseDisplay = false) const;
 
   void displayTransit(AstroChart_t const& chart) const;
 };

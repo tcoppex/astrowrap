@@ -365,7 +365,7 @@ AstroChart_t::AstroChart_t(TimeData_t _timeData)
   }
 }
 
-void AstroChart_t::display(bool bOutputHTML) const
+void AstroChart_t::display(bool bOutputHTML, bool bCondenseDisplay) const
 {
   FILE *fd = stderr;
 
@@ -426,17 +426,26 @@ void AstroChart_t::display(bool bOutputHTML) const
       sprintf(str_planetInHouse, kVideoFormat, kNorthNodeInHouseVideoId[p.id].c_str(), "house");
     }
 
-    fprintf( fd, "%9s %s\t%12s\t%s\t%3d°\t%3d° %2d'%2.0f\t%16s\t[ %s %s - %4s ]\t%6s\t%6s\n",
-      p.pname, planetSymbol, p.pname_sign, 
-      ZodiacSymbol(p.angle.zodiac()),
-      p.angle.degree % 30, p.angle.degree, p.angle.minute, p.angle.second,
-      PlanetDesc(p.id),
+    char condensedInfo[16];
+    sprintf( condensedInfo, "%s %s - %4s", 
       planetSymbol, 
-      ZodiacSymbol(p.angle.zodiac()),
-      placidus[houseId].pname,
-      str_planetInSign,
-      str_planetInHouse
+      ZodiacSymbol(p.angle.zodiac()), 
+      placidus[houseId].pname
     );
+
+    if (bCondenseDisplay) {
+      fprintf( fd, "%s\n", condensedInfo);
+    } else {
+      fprintf( fd, "%9s %s\t%12s\t%s\t%3d°\t%3d° %2d'%2.0f\t%16s\t[ %s ]\t%6s\t%6s\n",
+        p.pname, planetSymbol, p.pname_sign, 
+        ZodiacSymbol(p.angle.zodiac()),
+        p.angle.degree % 30, p.angle.degree, p.angle.minute, p.angle.second,
+        PlanetDesc(p.id),
+        condensedInfo,
+        str_planetInSign,
+        str_planetInHouse
+      );
+    }
   }
 
   fprintf( fd, "\n");
@@ -444,6 +453,8 @@ void AstroChart_t::display(bool bOutputHTML) const
   // Placidus houses.
   for (auto &p : placidus) {
     char ruler_str[128]{0};
+    char condensed_ruler_str[32]{0};
+
     if (p.id < kNumPlacidusHouses) {
       const auto ruling_planet_id{ ZodiacRuler(p.angle.zodiac()) };
       const auto ruler_house{ planetInHouse[ruling_planet_id] };
@@ -460,10 +471,19 @@ void AstroChart_t::display(bool bOutputHTML) const
         PlanetSymbol(ruling_planet_id),
         ZodiacSymbol(ruler.angle.zodiac())
       );
+
+      sprintf(condensed_ruler_str, "%4s %s %s",
+        placidus[ruler_house].pname, 
+        PlanetSymbol(ruling_planet_id),
+        ZodiacSymbol(ruler.angle.zodiac())
+      );
     }
 
     // Separates houses and others placidus elements.
     if (p.id == kNumPlacidusHouses) {
+      if (bCondenseDisplay) {
+        break;
+      }
       fprintf( fd, "\n");
     }
 
@@ -472,14 +492,21 @@ void AstroChart_t::display(bool bOutputHTML) const
       sprintf(ruler_str, kVideoFormat, videoId.c_str(), "ascendant");
     }
 
-    fprintf( fd, "%8s\t%12s\t%s\t%3d°\t%3d° %2d'%2.0f\t%16s\t%s\n",
-      p.pname, p.pname_sign,
-      ZodiacSymbol(p.angle.zodiac()),
-      p.angle.degree % 30, p.angle.degree, p.angle.minute, p.angle.second,
-      PlacidusDesc(p.id),
-      ruler_str
-    );
-
+    if (bCondenseDisplay) {
+      fprintf( fd, "%5s %s [%s]\n",
+        p.pname,
+        ZodiacSymbol(p.angle.zodiac()),
+        condensed_ruler_str
+      );
+    } else {
+      fprintf( fd, "%8s\t%12s\t%s\t%3d°\t%3d° %2d'%2.0f\t%16s\t%s\n",
+        p.pname, p.pname_sign,
+        ZodiacSymbol(p.angle.zodiac()),
+        p.angle.degree % 30, p.angle.degree, p.angle.minute, p.angle.second,
+        PlacidusDesc(p.id),
+        ruler_str
+      );
+    }
   }
 
   fprintf( fd, "\n");
@@ -498,15 +525,25 @@ void AstroChart_t::display(bool bOutputHTML) const
           const auto videoId{ kAspectVideoId[url_id] };
           sprintf(aspect_video_url, kVideoFormat, videoId.c_str(), "aspect");
         }
-
+        
         const auto &dst{ planets[dst_id] };
-        fprintf( fd, "%8s\t%10s\t%10s\t %+d°\t|\t(%s) %s %s %s (%s)\t\t%6s\n", 
-          src.pname, AspectName(A.type), dst.pname, A.orb,
+
+        char condensedInfo[64]{0};
+        sprintf(condensedInfo, "(%s) %s %s %s (%s)", 
           ZodiacSymbol(src.angle.zodiac()), PlanetSymbol(src.id),
           AspectSymbol(A.type),
-          PlanetSymbol(dst.id), ZodiacSymbol(dst.angle.zodiac()),
-          aspect_video_url
+          PlanetSymbol(dst.id), ZodiacSymbol(dst.angle.zodiac())
         );
+
+        if (bCondenseDisplay) {
+          fprintf( fd, "%s %+d°\n", condensedInfo, A.orb);
+        } else {
+          fprintf( fd, "%8s\t%10s\t%10s\t %+d°\t|\t%s\t\t%6s\n", 
+            src.pname, AspectName(A.type), dst.pname, A.orb,
+            condensedInfo,
+            aspect_video_url
+          );
+        }
       }
     }
   }
@@ -517,7 +554,6 @@ void AstroChart_t::display(bool bOutputHTML) const
     fclose(fd);
   }
 }
-
 
 void AstroChart_t::displayTransit(AstroChart_t const& chart/*bool bOutputHTML*/) const {
   constexpr int kTransitAspectMaxDegreeDiff{ 3 };
@@ -539,11 +575,11 @@ void AstroChart_t::displayTransit(AstroChart_t const& chart/*bool bOutputHTML*/)
     }
   }
 
-  fprintf( stderr, "\n\n\n[ wip ] Current Transit.\n" );
-  fprintf( stderr, " %4d-%02d-%02d\n", timeData.year, timeData.month, timeData.day);
-  fprintf( stderr, " %02d:%02d UT\n", timeData.hour, timeData.minute);
-  fprintf( stderr, " %.2f E - %.2f N (GMT %+d)\n", timeData.geoloc.longitude, timeData.geoloc.latitude, timeData.geoloc.timezone);
-  fprintf( stderr, "\n\n" );
+  fprintf(stderr, "Current Transit.\n" );
+  fprintf(stderr, " %4d-%02d-%02d\n", timeData.year, timeData.month, timeData.day);
+  fprintf(stderr, " %02d:%02d UT\n", timeData.hour, timeData.minute);
+  fprintf(stderr, " %.2f E - %.2f N (GMT %+d)\n", timeData.geoloc.longitude, timeData.geoloc.latitude, timeData.geoloc.timezone);
+  fprintf(stderr, "\n" );
 
   // Planets aspects.
   for (const auto& src : planets) {
@@ -562,7 +598,7 @@ void AstroChart_t::displayTransit(AstroChart_t const& chart/*bool bOutputHTML*/)
 
         const auto &dst{ chart.planets[dst_id] };
 
-        fprintf( stderr, "%8s\t%10s\t%10s\t %+d°\t|\t(%s) %s %s %s (%s)\t\t%6s\n", 
+        fprintf(stderr, "%8s\t%10s\t%10s\t %+d°\t|\t(%s) %s %s %s (%s)\t\t%6s\n", 
           src.pname, AspectName(A.type), dst.pname, A.orb,
           ZodiacSymbol(src.angle.zodiac()), PlanetSymbol(src.id),
           AspectSymbol(A.type),
