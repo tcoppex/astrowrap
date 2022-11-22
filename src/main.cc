@@ -10,6 +10,7 @@
 //
 
 #include <cstdlib>
+#include <cstdio>
 #include "astrowrap.h"
 
 /* -------------------------------------------------------------------------- */
@@ -34,6 +35,7 @@ int main(int argc, char *argv[])
     fprintf(stderr, "\n\n");
   }
   currentChart.displayTransit(nativeChart);
+  // nativeChart.displayTransit(currentChart);
 
   return EXIT_SUCCESS;
 }

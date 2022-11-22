@@ -1,6 +1,7 @@
 #include "astrowrap.h"
 
 #include <ctime>
+#include <string>
 #include "swe/swephexp.h"
 #include "swe/swephlib.h"
 
@@ -326,12 +327,12 @@ AstroChart_t::AstroChart_t(TimeData_t _timeData)
   for (const auto& src : planets) {
     for (auto dst_id = src.id+1; dst_id < kNumCelestialPoints; ++dst_id) {
       int diff = abs(src.angle.degree - planets[dst_id].angle.degree);
-          diff = (180 < diff) ? 360-diff : diff;
+          diff = (180 < diff) ? 360 - diff : diff;
       Aspect_t asp;
       for (int i = 0; i < kNumAspectTypes; ++i) {
         const AspectType_t atype = AspectType_t(i);
         const int orb = diff - AspectDegree(atype);
-        if (abs(orb) <= kAspectMaxDegreeDiff) {
+        if (orb <= kAspectMaxDegreeDiff) {
           asp.type = atype;
           asp.orb  = orb;
           break;
