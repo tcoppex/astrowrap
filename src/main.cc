@@ -34,8 +34,8 @@ int main(int argc, char *argv[])
   if (!bOutputHTML) {
     fprintf(stderr, "\n\n");
   }
-  currentChart.displayTransit(nativeChart);
-  // nativeChart.displayTransit(currentChart);
+  currentChart.displayTransit(nativeChart, bOutputHTML);
+  // nativeChart.displayTransit(currentChart, bOutputHTML);
 
   return EXIT_SUCCESS;
 }

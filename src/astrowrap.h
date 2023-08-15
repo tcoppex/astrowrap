@@ -209,7 +209,7 @@ struct AstroChart_t {
   
   void display(bool bOutputHTML, bool bCondenseDisplay = false) const;
 
-  void displayTransit(AstroChart_t const& chart) const;
+  void displayTransit(AstroChart_t const& chart, bool bOutputHTML) const;
 };
 
 /* -------------------------------------------------------------------------- */

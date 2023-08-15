@@ -185,13 +185,19 @@ const std::array<std::string, kNumPlacidusHouses> kNorthNodeInHouseVideoId{
 
 // Aspects on Sun, Moon, Mercury, Venus, Mars.
 const std::array<std::string, 50> kAspectVideoId{
-"x4TASn7ZnJ4", "SoQuWxLD0pA", "D_5eUVWYinw", "ZZUFhVQciOU", "aizl9qnrvQs", "kcQcdyxKDOU", "8fryO1v3MnM", "Zf3C-Yx3MxU", "KFfHHLRHteQ",
-"iHD89j2Mcu4", "cFyMVJe1IOg", "nDwRXypO9gs", "Mo04aIwPS-8", "AgTlwHW8Pp0", "VlyWXIhUlUA", "mCdy9v0HJF8", "EkiWb9aTqO0",
-"TDxPTDkYPaA", "oSCLQumLNSo", "n44w3SVSPho", "0c1bnTEuk_I", "fTxQ_Euj09Q", "Lk-wl6OXPWA", "uZvv9QsXoT8", 
-"YA1ZVhRDXh8", "yoz5dh-lc6c", "NqX2wqy6bOM", "ABLw_30ykJk", "l00Y-_hl3Is", "3HC6_qxSn-I", 
-"t2OKa57u-MQ", "uaJUDyTkVFQ", "vcP-KV6EzIo", "-PeDmB8MCkQ", "GlSdwf5R9ZE",
-// ascendant
-//"lfvfbPsMG98", "c4Ghny3VcoE", "ujq1yhqrVsM", "lO-OPF_xZKE"
+  // Sun.
+  "x4TASn7ZnJ4", "SoQuWxLD0pA", "D_5eUVWYinw", "ZZUFhVQciOU", "aizl9qnrvQs", "kcQcdyxKDOU", "8fryO1v3MnM", "Zf3C-Yx3MxU", "KFfHHLRHteQ", "HlZg9mGMOkU",
+                 // Moon.
+   "",           "iHD89j2Mcu4", "cFyMVJe1IOg", "nDwRXypO9gs", "Mo04aIwPS-8", "AgTlwHW8Pp0", "VlyWXIhUlUA", "mCdy9v0HJF8", "EkiWb9aTqO0", "GH2R19_9hKs",
+                                // Mercury.
+   "",           "",            "TDxPTDkYPaA", "oSCLQumLNSo", "n44w3SVSPho", "0c1bnTEuk_I", "fTxQ_Euj09Q", "Lk-wl6OXPWA", "uZvv9QsXoT8", "GIOMj90BA0I",
+                                               //Venus.
+   "",           "",            "",            "YA1ZVhRDXh8", "yoz5dh-lc6c", "NqX2wqy6bOM", "ABLw_30ykJk", "l00Y-_hl3Is", "3HC6_qxSn-I", "tYUvSe_otqQ",
+                                                              // Mars.
+   "",           "",            "",            "",            "t2OKa57u-MQ", "uaJUDyTkVFQ", "vcP-KV6EzIo", "-PeDmB8MCkQ", "GlSdwf5R9ZE", "cp3I-9Cjc0M"
+
+  // ascendant
+  //"lfvfbPsMG98", "c4Ghny3VcoE", "ujq1yhqrVsM", "lO-OPF_xZKE"
 };
 
 /* -------------------------------------------------------------------------- */
@@ -221,6 +227,8 @@ void ConvertCoordsToAngle(const std::array<double, 6> &coords, PreciseAngle_t &a
 
   angle.second = (minute - angle.minute) * 60.0;
 }
+
+/* -------------------------------------------------------------------------- */
 
 AstroChart_t::AstroChart_t(TimeData_t _timeData)
   : timeData(_timeData)
@@ -366,6 +374,33 @@ AstroChart_t::AstroChart_t(TimeData_t _timeData)
   }
 }
 
+/* -------------------------------------------------------------------------- */
+
+static constexpr const char* GetVideoFormat(bool bOutputHTML)
+{
+  return bOutputHTML ? "<a href=\"https://youtu.be/%s\">%s</a>"
+                     : "\e]8;;https://youtu.be/%s\a%s\e]8;;\a"
+                     ;
+}
+
+void getAspectVideoURL(int src_id, int dst_id, bool bOutputHTML, char aspect_video_url[128]) {
+  if ((src_id >= CelestialPoint_t::Sun) && (src_id <= CelestialPoint_t::Mars)
+   && (dst_id > CelestialPoint_t::Sun) && (dst_id <= CelestialPoint_t::TrueNode))
+  {
+    const char* kVideoFormat = GetVideoFormat(bOutputHTML);
+
+    // const int url_id = (dst_id - 1 - src.id) 
+    //                  + src.id * (kNumRulerPlanets-1) 
+    //                  + (src.id * (1 - src.id)) / 2;
+    const int url_id = src_id * int(CelestialPoint_t::TrueNode - CelestialPoint_t::Sun)
+                     + dst_id -1;
+    const auto videoId{ kAspectVideoId[url_id] };
+    sprintf(aspect_video_url, kVideoFormat, videoId.c_str(), "aspect");
+  }
+}
+
+/* -------------------------------------------------------------------------- */
+
 void AstroChart_t::display(bool bOutputHTML, bool bCondenseDisplay) const
 {
   FILE *fd = stderr;
@@ -401,10 +436,8 @@ void AstroChart_t::display(bool bOutputHTML, bool bCondenseDisplay) const
   );
 
   fprintf( fd, "\n");
-
-  const char* kVideoFormat = bOutputHTML ? "<a href=\"https://youtu.be/%s\">%s</a>"
-                                         : "\e]8;;https://youtu.be/%s\a%s\e]8;;\a"
-                                         ;
+  
+  const char* kVideoFormat = GetVideoFormat(bOutputHTML);
 
   // Planets in Signs & House.
   for (auto &p : planets) {
@@ -519,14 +552,8 @@ void AstroChart_t::display(bool bOutputHTML, bool bCondenseDisplay) const
       if (A.type != AspectType_t::None)
       {
         char aspect_video_url[128]{0};
-        if ((src.id >= CelestialPoint_t::Sun) && (src.id <= CelestialPoint_t::Mars)
-         && (dst_id > CelestialPoint_t::Sun) && (dst_id <= CelestialPoint_t::Pluto))
-        {
-          const int url_id = (dst_id - 1 - src.id) + src.id * (kNumRulerPlanets-1) + (src.id * (1 - src.id)) / 2;
-          const auto videoId{ kAspectVideoId[url_id] };
-          sprintf(aspect_video_url, kVideoFormat, videoId.c_str(), "aspect");
-        }
-        
+        getAspectVideoURL(src.id, dst_id, bOutputHTML, aspect_video_url);
+
         const auto &dst{ planets[dst_id] };
 
         char condensedInfo[64]{0};
@@ -556,7 +583,9 @@ void AstroChart_t::display(bool bOutputHTML, bool bCondenseDisplay) const
   }
 }
 
-void AstroChart_t::displayTransit(AstroChart_t const& chart/*bool bOutputHTML*/) const {
+/* -------------------------------------------------------------------------- */
+
+void AstroChart_t::displayTransit(AstroChart_t const& chart, bool bOutputHTML) const {
   constexpr int kTransitAspectMaxDegreeDiff{ 3 };
   AspectMatrix_t transitAspects;
 
@@ -582,20 +611,16 @@ void AstroChart_t::displayTransit(AstroChart_t const& chart/*bool bOutputHTML*/)
   fprintf(stderr, " %.2f E - %.2f N (GMT %+d)\n", timeData.geoloc.longitude, timeData.geoloc.latitude, timeData.geoloc.timezone);
   fprintf(stderr, "\n" );
 
+
   // Planets aspects.
   for (const auto& src : planets) {
     for (auto dst_id = size_t(src.id+0); dst_id < transitAspects.size(); ++dst_id) {
       const auto& A = transitAspects[src.id][dst_id];
       if (A.type != AspectType_t::None)
       {
+
         char aspect_video_url[128]{0};
-        // if ((src.id >= CelestialPoint_t::Sun) && (src.id <= CelestialPoint_t::Mars)
-        //  && (dst_id > CelestialPoint_t::Sun) && (dst_id <= CelestialPoint_t::Pluto))
-        // {
-        //   const int url_id = (dst_id - 1 - src.id) + src.id * (kNumRulerPlanets-1) + (src.id * (1 - src.id)) / 2;
-        //   const auto videoId{ kAspectVideoId[url_id] };
-        //   sprintf(aspect_video_url, kVideoFormat, videoId.c_str(), "aspect");
-        // }
+        getAspectVideoURL(src.id, dst_id, bOutputHTML, aspect_video_url);        
 
         const auto &dst{ chart.planets[dst_id] };
 
