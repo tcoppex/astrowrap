@@ -332,7 +332,7 @@ AstroChart_t::AstroChart_t(TimeData_t _timeData)
       for (int i = 0; i < kNumAspectTypes; ++i) {
         const AspectType_t atype = AspectType_t(i);
         const int orb = diff - AspectDegree(atype);
-        if (orb <= kAspectMaxDegreeDiff) {
+        if (abs(orb) <= kAspectMaxDegreeDiff) {
           asp.type = atype;
           asp.orb  = orb;
           break;
