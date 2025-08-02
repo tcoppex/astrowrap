@@ -22,7 +22,7 @@ enum SWEPlanetEnum {
   Neptune,
   Pluto,
   TrueNode  = SE_TRUE_NODE,
-  Chiron    = SE_MEAN_APOG + 3,
+  // Chiron    = SE_MEAN_APOG + 3,
   //WhiteMoon = SE_CUPIDO + 25,
   //BlackMoon = SE_WALDEMATH,
 };
@@ -52,7 +52,7 @@ const std::array<PlanetData_t, kNumCelestialPoints> kPlanetDatas{
   "♆",  "Neptune",    "Mystery",          SWEPlanetEnum::Neptune,
   "♇",  "Pluto",      "Death & Rebirth",  SWEPlanetEnum::Pluto,
   "☊",  "True Node",  "Karmic Goal",      SWEPlanetEnum::TrueNode,
-  "⚷",  "Chiron",     "Wounded Healer",   SWEPlanetEnum::Chiron,
+  // "⚷",  "Chiron",     "Wounded Healer",   SWEPlanetEnum::Chiron,
 };
 
 char const* PlanetSymbol(CelestialPoint_t p)    { return kPlanetDatas[p].symbol;  }

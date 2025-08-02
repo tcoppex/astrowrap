@@ -22,7 +22,7 @@ enum CelestialPoint_t {
   kNumRulerPlanets,
 
   TrueNode = kNumRulerPlanets,
-  Chiron,
+  // Chiron,
 
   kNumCelestialPoints
 };
