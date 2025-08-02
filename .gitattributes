@@ -1,0 +1,2 @@
+src/swe/* linguist-vendored
+*.h linguist-language=C++
