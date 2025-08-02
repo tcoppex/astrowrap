@@ -5,6 +5,22 @@ _**AstroWrap**_ helps you visualize formatted tropical placidus astral chart, ei
 
 It uses the *Astrodienst Swiss Ephemeris* in accordance to its license.
 
+## Usage
+
+| Argument         | Required | Description                                 | Example                     |
+|------------------|----------|---------------------------------------------|-----------------------------|
+| `--gps`          | ✅ Yes   | Specifies GPS coordinates                   | `--gps 28.82,1.29`          |
+| `--date`         | ✅ Yes   | Specifies the date                          | `--date 2025/08/02`         |
+| `--time`         | ✅ Yes   | Specifies the UTC time                      | `--time 14:30`              |
+| `--output-html`  | ❌ No    | Enables output in HTML format               | `--output-html`             |
+| `--compact`      | ❌ No    | Enables compact output formatting           | `--compact`                 |
+
+A Python script is provided at `tools/utc_params.py` to simplify parameter input. It accepts a named location and local time, then converts the date and time to UTC-compatible arguments for the program.
+
+```bash
+./bin/astrowrap $(./tools/utc_params.py native Tokyo jp 1986/02/16 --time 10:45)
+```
+
 ### Sample output
 
 <pre>~:: Tropical Placidus Chart ::~
